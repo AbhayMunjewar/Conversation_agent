@@ -1,0 +1,9 @@
+{
+  "id": "kb_doc_0226",
+  "title": "Redressal timelines and compensation policies for Personal Loan delays",
+  "category": "regulatory_rbi",
+  "product_type": "personal_loan",
+  "region": "IN-national",
+  "content": "[SYNTHETIC POLICY FOR DEMO PURPOSES ONLY] Per regulatory guidelines, banks must resolve failed transaction disputes for Personal Loan and reverse funds within specified Turnaround Times (T+5 days for card transactions). If NexBank fails to credit the disputed amount back to the customer's account within T+5 days, the bank will pay a daily compensation of Rs. 100 to the customer for each day of delay beyond the SLA. This compensation is credited automatically without requiring a separate request, in accordance with the RBI compensation framework.",
+  "last_updated": "2026-07-05T07:22:10.662732+00:00"
+}

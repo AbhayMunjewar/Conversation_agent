@@ -1,0 +1,9 @@
+{
+  "id": "kb_doc_0178",
+  "title": "Handling duplicate charges on Fixed Deposit",
+  "category": "dispute_and_complaint",
+  "product_type": "fixed_deposit",
+  "region": "IN-national",
+  "content": "[SYNTHETIC POLICY FOR DEMO PURPOSES ONLY] If you have been charged twice for a single transaction on your NexBank Fixed Deposit, please submit a dispute form along with the transaction reference IDs and payment receipt. Our merchant services team will review the transaction logs against the card network system. If the duplicate debit is confirmed, a reversal credit will be processed back to the original source account within 5 working days. Dispute requests must be submitted within 60 days of the statement date to be eligible for merchant chargeback recourse.",
+  "last_updated": "2026-07-05T07:22:10.647692+00:00"
+}

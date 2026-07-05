@@ -1,0 +1,9 @@
+{
+  "id": "kb_doc_0031",
+  "title": "How do I troubleshoot login issues for Credit Card app?",
+  "category": "faq",
+  "product_type": "credit_card",
+  "region": "IN-DL",
+  "content": "[SYNTHETIC POLICY FOR DEMO PURPOSES ONLY] If you are unable to log in to the NexBank mobile app to manage your Credit Card, first ensure your internet connection is stable. Try clearing the application cache from your mobile settings menu and relaunching the application. If you have forgotten your credentials, click 'Forgot Password' or 'Reset PIN' to generate a password reset link sent via SMS and registered email. For account security, after three unsuccessful login attempts, your digital access to Credit Card services will be temporarily locked for a duration of 2 hours.",
+  "last_updated": "2026-07-05T07:22:10.607566+00:00"
+}
