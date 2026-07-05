@@ -1,0 +1,478 @@
+{
+  "taxonomy_version": "1.0",
+  "bank": "NexBank",
+  "notes": "Hierarchical intent schema: domain -> intent. Used for two-stage NLU classification (domain router, then fine-grained intent classifier). Each intent lists required_slots for dialogue state management and guardrail_notes flagging anything that must never be handled by free-text LLM generation alone.",
+  "domains": [
+    {
+      "domain": "account",
+      "description": "Queries and actions related to the customer's own account information and settings.",
+      "intents": [
+        {
+          "intent": "balance_inquiry",
+          "description": "Customer wants to know current account balance or available funds.",
+          "required_slots": ["account_type"],
+          "guardrail_notes": "Read-only. Requires authenticated session before disclosure.",
+          "example_utterances": [
+            "what's my account balance",
+            "how much money do I have right now",
+            "check balance please",
+            "mera balance kitna hai",
+            "can u tell me available balance in savings",
+            "balance check karo",
+            "how much is left in my account",
+            "show me current balance",
+            "need to know my balance urgently",
+            "whats the balance in my salary account",
+            "balance dikhao",
+            "available funds in my account?"
+          ]
+        },
+        {
+          "intent": "statement_request",
+          "description": "Customer wants an account statement for a period, format, or purpose.",
+          "required_slots": ["date_range", "delivery_format"],
+          "guardrail_notes": "Read-only, authenticated.",
+          "example_utterances": [
+            "send me last 3 months statement",
+            "I need my bank statement for visa application",
+            "download statement for last year",
+            "statement chahiye pichle 6 mahine ka",
+            "can you email me my april statement",
+            "need account statement in pdf",
+            "how do I get a statement for tax filing",
+            "give me statement from jan to march 2026",
+            "mujhe statement bhejo email pe",
+            "annual statement request",
+            "statement for loan application needed",
+            "last 10 transactions statement"
+          ]
+        },
+        {
+          "intent": "kyc_update",
+          "description": "Customer wants to update KYC documents, PAN, address proof, or identity details.",
+          "required_slots": ["document_type", "new_value"],
+          "guardrail_notes": "Sensitive identity change. Must route to verified document upload flow, never accept KYC data as plain chat text. Requires OTP/video-KYC step-up.",
+          "example_utterances": [
+            "I need to update my KYC",
+            "how to update pan card in bank account",
+            "kyc update karna hai",
+            "my aadhar has changed need to update",
+            "update my identity documents",
+            "re-kyc process kaise hoga",
+            "need to submit new address proof",
+            "how do I complete video kyc",
+            "my kyc is expired what do I do",
+            "change registered pan number",
+            "kyc documents update karna hai online",
+            "need help with periodic kyc renewal"
+          ]
+        },
+        {
+          "intent": "card_block",
+          "description": "Customer wants to block, freeze, or report a lost/stolen debit or credit card.",
+          "required_slots": ["card_type", "last_4_digits", "reason"],
+          "guardrail_notes": "Time-sensitive and security-critical. Must be handled via authenticated instant tool call, never delayed for confirmation loops. Auto-escalate if fraud suspected.",
+          "example_utterances": [
+            "please block my debit card immediately",
+            "i lost my card can u stop it",
+            "card chori ho gaya, block kardo",
+            "block my credit card right now",
+            "someone stole my wallet block all cards",
+            "my card is missing please freeze it",
+            "need to permanently block lost card",
+            "temporarily freeze my debit card",
+            "card khoya hai jaldi block karo",
+            "block card ending 4521",
+            "unblock my card I found it",
+            "my card is stuck in atm please block"
+          ]
+        },
+        {
+          "intent": "address_change",
+          "description": "Customer wants to update their registered communication or permanent address.",
+          "required_slots": ["address_type", "new_address"],
+          "guardrail_notes": "Requires OTP/document verification step-up before applying.",
+          "example_utterances": [
+            "I want to change my registered address",
+            "update my communication address",
+            "address change karna hai naya ghar shift hua",
+            "how to update address in bank records",
+            "moved to a new city need to update address",
+            "please update my permanent address",
+            "change delivery address for cheque book",
+            "my pin code has changed update please",
+            "address update ke liye kya documents chahiye",
+            "shifted house update bank address"
+          ]
+        },
+        {
+          "intent": "account_closure",
+          "description": "Customer wants to close their account or a specific product.",
+          "required_slots": ["account_type", "reason"],
+          "guardrail_notes": "High-friction intent. Must route to retention flow then human agent; never auto-processed by the bot alone.",
+          "example_utterances": [
+            "I want to close my account",
+            "how do I close my savings account",
+            "account band karna hai",
+            "please deactivate my account permanently",
+            "not happy with service want to close account",
+            "closing account moving to another bank",
+            "cancel my account and cards",
+            "how long does account closure take",
+            "want to shut down my nexbank account",
+            "account close karne ka process kya hai"
+          ]
+        }
+      ]
+    },
+    {
+      "domain": "transaction",
+      "description": "Queries and disputes about specific past or pending transactions.",
+      "intents": [
+        {
+          "intent": "dispute_unauthorized",
+          "description": "Customer claims a transaction was made without their authorization (potential fraud).",
+          "required_slots": ["transaction_id", "amount", "date"],
+          "guardrail_notes": "High priority fraud signal. Must trigger auto-escalation and provisional card freeze offer; never resolved purely by chatbot reassurance.",
+          "example_utterances": [
+            "I didn't make this transaction, someone used my card",
+            "there's a charge I never authorized",
+            "ye transaction maine nahi kiya fraud hai",
+            "unknown transaction of 5000 rupees on my account",
+            "my card was used without my permission",
+            "I see a payment I never made",
+            "this is unauthorized please reverse it",
+            "someone hacked my account and made a payment",
+            "fraud transaction on my statement need help",
+            "I never shopped there but there's a charge",
+            "block and refund this fraud transaction",
+            "unrecognized debit from my account"
+          ]
+        },
+        {
+          "intent": "dispute_duplicate",
+          "description": "Customer was charged twice for what should have been a single transaction.",
+          "required_slots": ["transaction_id", "amount", "date"],
+          "guardrail_notes": "Verify against ledger before promising refund; do not confirm refund amount without tool confirmation.",
+          "example_utterances": [
+            "I got charged twice for one purchase",
+            "double payment hua hai please check",
+            "same amount deducted two times",
+            "duplicate transaction on my account",
+            "I paid once but it shows two debits",
+            "amazon charged me twice for same order",
+            "two identical transactions same day please refund one",
+            "money deducted twice for one recharge",
+            "duplicate debit of 1200 rupees",
+            "why was I billed two times for the same thing"
+          ]
+        },
+        {
+          "intent": "dispute_failed_credit",
+          "description": "Customer sent/received money but the credit did not reflect (failed transfer, refund not credited).",
+          "required_slots": ["transaction_id", "amount", "counterparty"],
+          "guardrail_notes": "Route to transaction reconciliation tool; do not guess resolution timelines beyond documented SLA.",
+          "example_utterances": [
+            "money debited but not credited to receiver",
+            "sent money but friend didn't get it",
+            "refund not received yet from merchant",
+            "payment failed but amount deducted from my account",
+            "neft transfer stuck money not credited",
+            "amount cut but transaction failed on app",
+            "refund initiated 5 days ago still not in my account",
+            "upi payment failed but money gone",
+            "cashback not credited as promised",
+            "salary not credited this month"
+          ]
+        },
+        {
+          "intent": "refund_status",
+          "description": "Customer wants to check the status of an already-initiated refund or dispute.",
+          "required_slots": ["dispute_id_or_transaction_id"],
+          "guardrail_notes": "Read-only status lookup.",
+          "example_utterances": [
+            "what's the status of my refund",
+            "when will I get my refund",
+            "refund kab tak aayega",
+            "check status of my dispute ticket",
+            "any update on my complaint filed last week",
+            "how long does a refund usually take",
+            "tracking my chargeback status",
+            "is my refund approved yet",
+            "refund status for ticket number 88214"
+          ]
+        },
+        {
+          "intent": "pending_transaction_query",
+          "description": "Customer asks about a transaction shown as pending/processing.",
+          "required_slots": ["transaction_id"],
+          "guardrail_notes": "Read-only.",
+          "example_utterances": [
+            "why is this transaction still pending",
+            "transaction showing processing since yesterday",
+            "pending payment not cleared yet",
+            "how long do pending transactions take to clear",
+            "this debit is still in pending state",
+            "payment stuck in processing"
+          ]
+        },
+        {
+          "intent": "failed_transaction_query",
+          "description": "Customer's transaction failed and they want to understand why or confirm reversal.",
+          "required_slots": ["transaction_id"],
+          "guardrail_notes": "Read-only; do not speculate on technical cause without tool lookup.",
+          "example_utterances": [
+            "my transaction failed why",
+            "payment declined at merchant but why",
+            "transaction failed will I get my money back automatically",
+            "atm withdrawal failed but card was debited",
+            "upi transaction failed reason",
+            "why did my bill payment fail"
+          ]
+        }
+      ]
+    },
+    {
+      "domain": "product",
+      "description": "Product discovery, comparison, and recommendation requests.",
+      "intents": [
+        {
+          "intent": "recommend_savings",
+          "description": "Customer wants suggestions on savings account types or features.",
+          "required_slots": ["monthly_balance_range", "goal"],
+          "guardrail_notes": "General product info only; must include T&C disclaimer, no guaranteed-return language.",
+          "example_utterances": [
+            "which savings account is best for me",
+            "do you have a high interest savings account",
+            "best savings account for students",
+            "savings account with zero balance option",
+            "which account gives more interest",
+            "recommend a savings account for salary credit",
+            "kaunsa savings account acha rahega mere liye"
+          ]
+        },
+        {
+          "intent": "recommend_loan",
+          "description": "Customer wants information on loan products suited to their needs.",
+          "required_slots": ["loan_purpose", "amount_range"],
+          "guardrail_notes": "Must not quote personalized interest rate or eligibility without underwriting tool; disclaim that final terms depend on credit assessment.",
+          "example_utterances": [
+            "I need a personal loan for wedding",
+            "what home loan options do you have",
+            "looking for education loan for my daughter",
+            "best loan for buying a car",
+            "which loan has lowest interest rate",
+            "personal loan chahiye emergency ke liye",
+            "loan against fixed deposit available?"
+          ]
+        },
+        {
+          "intent": "recommend_card",
+          "description": "Customer wants a credit or debit card recommendation based on lifestyle/spend.",
+          "required_slots": ["spend_category", "annual_income_range"],
+          "guardrail_notes": "General comparison only, no guaranteed approval promises.",
+          "example_utterances": [
+            "which credit card is best for travel",
+            "suggest a card with good cashback",
+            "I shop online a lot which card suits me",
+            "best credit card for fuel savings",
+            "which card has lowest annual fee",
+            "recommend a card for first time users"
+          ]
+        },
+        {
+          "intent": "cross_sell_insurance",
+          "description": "Customer inquires about or is offered insurance products linked to banking.",
+          "required_slots": ["insurance_type"],
+          "guardrail_notes": "Must include mandatory insurance disclosures; never present as investment advice.",
+          "example_utterances": [
+            "do you offer health insurance",
+            "tell me about term insurance plans",
+            "is there travel insurance with my card",
+            "insurance policy for home loan customers",
+            "life insurance options through nexbank"
+          ]
+        },
+        {
+          "intent": "recommend_fixed_deposit",
+          "description": "Customer wants FD tenure/rate options.",
+          "required_slots": ["amount", "tenure_preference"],
+          "guardrail_notes": "Rates must come from live rate tool, never hardcoded/guessed by the LLM.",
+          "example_utterances": [
+            "what are current fd interest rates",
+            "best tenure for fixed deposit",
+            "fd karna hai 1 lakh ka kitna interest milega",
+            "senior citizen fd rates",
+            "tax saving fd options"
+          ]
+        }
+      ]
+    },
+    {
+      "domain": "complaint",
+      "description": "Dissatisfaction, service issues, and formal complaints.",
+      "intents": [
+        {
+          "intent": "service_complaint",
+          "description": "General dissatisfaction with service quality, staff behavior, or process delays.",
+          "required_slots": ["complaint_category"],
+          "guardrail_notes": "Sentiment-monitored; repeated negative sentiment is an escalation trigger.",
+          "example_utterances": [
+            "your customer service is terrible",
+            "I've been waiting for 2 weeks with no update",
+            "branch staff was very rude to me",
+            "nobody is responding to my emails",
+            "this is the worst banking experience",
+            "bahut bura service hai aapka",
+            "I want to file a formal complaint"
+          ]
+        },
+        {
+          "intent": "fee_complaint",
+          "description": "Customer disputes or complains about a fee/charge deducted.",
+          "required_slots": ["fee_type", "amount"],
+          "guardrail_notes": "Verify fee against fee schedule tool before agreeing to reverse.",
+          "example_utterances": [
+            "why was I charged annual fee I never agreed to",
+            "unnecessary charges on my account",
+            "please waive this penalty charge",
+            "why is there a maintenance fee deducted",
+            "hidden charges on my statement",
+            "atm withdrawal charge is too high"
+          ]
+        },
+        {
+          "intent": "app_bug_report",
+          "description": "Customer reports a technical issue with the mobile app or website.",
+          "required_slots": ["platform", "issue_description"],
+          "guardrail_notes": "Route to tech support queue; do not attempt to diagnose security-related bugs conversationally.",
+          "example_utterances": [
+            "the app keeps crashing when I login",
+            "unable to see my transactions in the app",
+            "website is not loading properly",
+            "otp not received on app",
+            "app bahut slow chal raha hai",
+            "getting an error while making payment on app"
+          ]
+        },
+        {
+          "intent": "fraud_report",
+          "description": "Customer reports suspected fraud, phishing, or account compromise beyond a single transaction.",
+          "required_slots": ["fraud_type", "description"],
+          "guardrail_notes": "Always auto-escalate to fraud team; never resolved by bot alone regardless of confidence.",
+          "example_utterances": [
+            "I think my account has been hacked",
+            "I got a phishing call pretending to be nexbank",
+            "someone is trying to access my account",
+            "I shared my otp by mistake with a fraud caller",
+            "my account details got leaked what do I do",
+            "suspicious login alert on my account"
+          ]
+        }
+      ]
+    },
+    {
+      "domain": "advisory",
+      "description": "Rate/tax/investment-adjacent questions that must be handled with disclaimers, never as personalized advice.",
+      "intents": [
+        {
+          "intent": "interest_rate_query",
+          "description": "Customer asks about current interest rates on products.",
+          "required_slots": ["product_type"],
+          "guardrail_notes": "Must pull from live rate tool; disclaim rates are subject to change.",
+          "example_utterances": [
+            "what is the current savings interest rate",
+            "fd rates today",
+            "home loan interest rate kya hai abhi",
+            "repo rate se meri emi kaise change hogi",
+            "current rate of interest on personal loan"
+          ]
+        },
+        {
+          "intent": "tax_query",
+          "description": "Customer asks tax-related questions connected to their banking products.",
+          "required_slots": [],
+          "guardrail_notes": "Must never give personalized tax advice. Always route to disclaimer plus suggestion to consult a tax professional or CA.",
+          "example_utterances": [
+            "is fd interest taxable",
+            "how much tds is deducted on my fd",
+            "will I have to pay tax on savings interest",
+            "tax saving options in banking",
+            "do I need to file itr for this income"
+          ]
+        },
+        {
+          "intent": "investment_query",
+          "description": "Customer asks for investment guidance (mutual funds, stocks, etc.) beyond simple bank products.",
+          "required_slots": [],
+          "guardrail_notes": "Must never give personalized investment advice or recommend specific instruments. Always disclaim and offer to connect with a licensed advisor.",
+          "example_utterances": [
+            "should I invest in mutual funds or fd",
+            "is this a good time to invest in stocks",
+            "which mutual fund should I buy",
+            "how should I invest my savings for best returns",
+            "investment advice chahiye mujhe"
+          ]
+        }
+      ]
+    },
+    {
+      "domain": "meta",
+      "description": "Conversation-management and system-level intents that aren't domain-specific banking requests.",
+      "intents": [
+        {
+          "intent": "escalation_request",
+          "description": "Customer explicitly asks to speak with a human agent.",
+          "required_slots": [],
+          "guardrail_notes": "Always honored; never argued with or delayed by the bot.",
+          "example_utterances": [
+            "connect me to a human agent",
+            "I want to talk to a real person",
+            "transfer this call to customer care executive",
+            "stop the bot I need a human",
+            "mujhe agent se baat karni hai"
+          ]
+        },
+        {
+          "intent": "general_greeting",
+          "description": "Opening greeting with no specific request yet.",
+          "required_slots": [],
+          "guardrail_notes": "None.",
+          "example_utterances": [
+            "hi",
+            "hello",
+            "good morning",
+            "namaste",
+            "hey there"
+          ]
+        },
+        {
+          "intent": "general_farewell",
+          "description": "Customer ending the conversation.",
+          "required_slots": [],
+          "guardrail_notes": "Trigger CSAT survey prompt on farewell.",
+          "example_utterances": [
+            "thanks bye",
+            "that's all thank you",
+            "ok got it thanks",
+            "dhanyawad",
+            "no further questions bye"
+          ]
+        },
+        {
+          "intent": "authentication",
+          "description": "System-level intent for login/OTP/identity verification steps within the conversation.",
+          "required_slots": ["auth_method"],
+          "guardrail_notes": "Never bypassed; required before any account-specific data disclosure or action.",
+          "example_utterances": [
+            "my otp is 483920",
+            "here is my registered mobile number",
+            "I want to verify my identity",
+            "resend otp please",
+            "otp nahi aaya dobara bhejo"
+          ]
+        }
+      ]
+    }
+  ]
+}
