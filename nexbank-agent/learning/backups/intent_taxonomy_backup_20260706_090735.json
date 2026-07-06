@@ -10,9 +10,7 @@
         {
           "intent": "balance_inquiry",
           "description": "Customer wants to know current account balance or available funds.",
-          "required_slots": [
-            "account_type"
-          ],
+          "required_slots": ["account_type"],
           "guardrail_notes": "Read-only. Requires authenticated session before disclosure.",
           "example_utterances": [
             "what's my account balance",
@@ -32,10 +30,7 @@
         {
           "intent": "statement_request",
           "description": "Customer wants an account statement for a period, format, or purpose.",
-          "required_slots": [
-            "date_range",
-            "delivery_format"
-          ],
+          "required_slots": ["date_range", "delivery_format"],
           "guardrail_notes": "Read-only, authenticated.",
           "example_utterances": [
             "send me last 3 months statement",
@@ -55,10 +50,7 @@
         {
           "intent": "kyc_update",
           "description": "Customer wants to update KYC documents, PAN, address proof, or identity details.",
-          "required_slots": [
-            "document_type",
-            "new_value"
-          ],
+          "required_slots": ["document_type", "new_value"],
           "guardrail_notes": "Sensitive identity change. Must route to verified document upload flow, never accept KYC data as plain chat text. Requires OTP/video-KYC step-up.",
           "example_utterances": [
             "I need to update my KYC",
@@ -78,11 +70,7 @@
         {
           "intent": "card_block",
           "description": "Customer wants to block, freeze, or report a lost/stolen debit or credit card.",
-          "required_slots": [
-            "card_type",
-            "last_4_digits",
-            "reason"
-          ],
+          "required_slots": ["card_type", "last_4_digits", "reason"],
           "guardrail_notes": "Time-sensitive and security-critical. Must be handled via authenticated instant tool call, never delayed for confirmation loops. Auto-escalate if fraud suspected.",
           "example_utterances": [
             "please block my debit card immediately",
@@ -102,10 +90,7 @@
         {
           "intent": "address_change",
           "description": "Customer wants to update their registered communication or permanent address.",
-          "required_slots": [
-            "address_type",
-            "new_address"
-          ],
+          "required_slots": ["address_type", "new_address"],
           "guardrail_notes": "Requires OTP/document verification step-up before applying.",
           "example_utterances": [
             "I want to change my registered address",
@@ -123,10 +108,7 @@
         {
           "intent": "account_closure",
           "description": "Customer wants to close their account or a specific product.",
-          "required_slots": [
-            "account_type",
-            "reason"
-          ],
+          "required_slots": ["account_type", "reason"],
           "guardrail_notes": "High-friction intent. Must route to retention flow then human agent; never auto-processed by the bot alone.",
           "example_utterances": [
             "I want to close my account",
@@ -150,11 +132,7 @@
         {
           "intent": "dispute_unauthorized",
           "description": "Customer claims a transaction was made without their authorization (potential fraud).",
-          "required_slots": [
-            "transaction_id",
-            "amount",
-            "date"
-          ],
+          "required_slots": ["transaction_id", "amount", "date"],
           "guardrail_notes": "High priority fraud signal. Must trigger auto-escalation and provisional card freeze offer; never resolved purely by chatbot reassurance.",
           "example_utterances": [
             "I didn't make this transaction, someone used my card",
@@ -174,11 +152,7 @@
         {
           "intent": "dispute_duplicate",
           "description": "Customer was charged twice for what should have been a single transaction.",
-          "required_slots": [
-            "transaction_id",
-            "amount",
-            "date"
-          ],
+          "required_slots": ["transaction_id", "amount", "date"],
           "guardrail_notes": "Verify against ledger before promising refund; do not confirm refund amount without tool confirmation.",
           "example_utterances": [
             "I got charged twice for one purchase",
@@ -196,11 +170,7 @@
         {
           "intent": "dispute_failed_credit",
           "description": "Customer sent/received money but the credit did not reflect (failed transfer, refund not credited).",
-          "required_slots": [
-            "transaction_id",
-            "amount",
-            "counterparty"
-          ],
+          "required_slots": ["transaction_id", "amount", "counterparty"],
           "guardrail_notes": "Route to transaction reconciliation tool; do not guess resolution timelines beyond documented SLA.",
           "example_utterances": [
             "money debited but not credited to receiver",
@@ -218,9 +188,7 @@
         {
           "intent": "refund_status",
           "description": "Customer wants to check the status of an already-initiated refund or dispute.",
-          "required_slots": [
-            "dispute_id_or_transaction_id"
-          ],
+          "required_slots": ["dispute_id_or_transaction_id"],
           "guardrail_notes": "Read-only status lookup.",
           "example_utterances": [
             "what's the status of my refund",
@@ -237,9 +205,7 @@
         {
           "intent": "pending_transaction_query",
           "description": "Customer asks about a transaction shown as pending/processing.",
-          "required_slots": [
-            "transaction_id"
-          ],
+          "required_slots": ["transaction_id"],
           "guardrail_notes": "Read-only.",
           "example_utterances": [
             "why is this transaction still pending",
@@ -253,9 +219,7 @@
         {
           "intent": "failed_transaction_query",
           "description": "Customer's transaction failed and they want to understand why or confirm reversal.",
-          "required_slots": [
-            "transaction_id"
-          ],
+          "required_slots": ["transaction_id"],
           "guardrail_notes": "Read-only; do not speculate on technical cause without tool lookup.",
           "example_utterances": [
             "my transaction failed why",
@@ -275,10 +239,7 @@
         {
           "intent": "recommend_savings",
           "description": "Customer wants suggestions on savings account types or features.",
-          "required_slots": [
-            "monthly_balance_range",
-            "goal"
-          ],
+          "required_slots": ["monthly_balance_range", "goal"],
           "guardrail_notes": "General product info only; must include T&C disclaimer, no guaranteed-return language.",
           "example_utterances": [
             "which savings account is best for me",
@@ -293,10 +254,7 @@
         {
           "intent": "recommend_loan",
           "description": "Customer wants information on loan products suited to their needs.",
-          "required_slots": [
-            "loan_purpose",
-            "amount_range"
-          ],
+          "required_slots": ["loan_purpose", "amount_range"],
           "guardrail_notes": "Must not quote personalized interest rate or eligibility without underwriting tool; disclaim that final terms depend on credit assessment.",
           "example_utterances": [
             "I need a personal loan for wedding",
@@ -311,10 +269,7 @@
         {
           "intent": "recommend_card",
           "description": "Customer wants a credit or debit card recommendation based on lifestyle/spend.",
-          "required_slots": [
-            "spend_category",
-            "annual_income_range"
-          ],
+          "required_slots": ["spend_category", "annual_income_range"],
           "guardrail_notes": "General comparison only, no guaranteed approval promises.",
           "example_utterances": [
             "which credit card is best for travel",
@@ -328,9 +283,7 @@
         {
           "intent": "cross_sell_insurance",
           "description": "Customer inquires about or is offered insurance products linked to banking.",
-          "required_slots": [
-            "insurance_type"
-          ],
+          "required_slots": ["insurance_type"],
           "guardrail_notes": "Must include mandatory insurance disclosures; never present as investment advice.",
           "example_utterances": [
             "do you offer health insurance",
@@ -343,10 +296,7 @@
         {
           "intent": "recommend_fixed_deposit",
           "description": "Customer wants FD tenure/rate options.",
-          "required_slots": [
-            "amount",
-            "tenure_preference"
-          ],
+          "required_slots": ["amount", "tenure_preference"],
           "guardrail_notes": "Rates must come from live rate tool, never hardcoded/guessed by the LLM.",
           "example_utterances": [
             "what are current fd interest rates",
@@ -365,9 +315,7 @@
         {
           "intent": "service_complaint",
           "description": "General dissatisfaction with service quality, staff behavior, or process delays.",
-          "required_slots": [
-            "complaint_category"
-          ],
+          "required_slots": ["complaint_category"],
           "guardrail_notes": "Sentiment-monitored; repeated negative sentiment is an escalation trigger.",
           "example_utterances": [
             "your customer service is terrible",
@@ -382,10 +330,7 @@
         {
           "intent": "fee_complaint",
           "description": "Customer disputes or complains about a fee/charge deducted.",
-          "required_slots": [
-            "fee_type",
-            "amount"
-          ],
+          "required_slots": ["fee_type", "amount"],
           "guardrail_notes": "Verify fee against fee schedule tool before agreeing to reverse.",
           "example_utterances": [
             "why was I charged annual fee I never agreed to",
@@ -399,10 +344,7 @@
         {
           "intent": "app_bug_report",
           "description": "Customer reports a technical issue with the mobile app or website.",
-          "required_slots": [
-            "platform",
-            "issue_description"
-          ],
+          "required_slots": ["platform", "issue_description"],
           "guardrail_notes": "Route to tech support queue; do not attempt to diagnose security-related bugs conversationally.",
           "example_utterances": [
             "the app keeps crashing when I login",
@@ -416,10 +358,7 @@
         {
           "intent": "fraud_report",
           "description": "Customer reports suspected fraud, phishing, or account compromise beyond a single transaction.",
-          "required_slots": [
-            "fraud_type",
-            "description"
-          ],
+          "required_slots": ["fraud_type", "description"],
           "guardrail_notes": "Always auto-escalate to fraud team; never resolved by bot alone regardless of confidence.",
           "example_utterances": [
             "I think my account has been hacked",
@@ -439,9 +378,7 @@
         {
           "intent": "interest_rate_query",
           "description": "Customer asks about current interest rates on products.",
-          "required_slots": [
-            "product_type"
-          ],
+          "required_slots": ["product_type"],
           "guardrail_notes": "Must pull from live rate tool; disclaim rates are subject to change.",
           "example_utterances": [
             "what is the current savings interest rate",
@@ -525,9 +462,7 @@
         {
           "intent": "authentication",
           "description": "System-level intent for login/OTP/identity verification steps within the conversation.",
-          "required_slots": [
-            "auth_method"
-          ],
+          "required_slots": ["auth_method"],
           "guardrail_notes": "Never bypassed; required before any account-specific data disclosure or action.",
           "example_utterances": [
             "my otp is 483920",

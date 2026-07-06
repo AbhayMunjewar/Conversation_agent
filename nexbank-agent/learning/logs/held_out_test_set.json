@@ -1,0 +1,17 @@
+[
+  {"text": "what's my account balance", "expected_intent": "balance_inquiry"},
+  {"text": "send me last 3 months statement", "expected_intent": "statement_request"},
+  {"text": "I need to update my KYC", "expected_intent": "kyc_update"},
+  {"text": "please block my debit card immediately", "expected_intent": "card_block"},
+  {"text": "I want to change my registered address", "expected_intent": "address_change"},
+  {"text": "I want to close my account", "expected_intent": "account_closure"},
+  {"text": "there's a charge I never authorized", "expected_intent": "dispute_unauthorized"},
+  {"text": "I got charged twice for one purchase", "expected_intent": "dispute_duplicate"},
+  {"text": "money debited but not credited to receiver", "expected_intent": "dispute_failed_credit"},
+  {"text": "what's the status of my refund", "expected_intent": "refund_status"},
+  {"text": "which savings account is best for me", "expected_intent": "recommend_savings"},
+  {"text": "what home loan options do you have", "expected_intent": "recommend_loan"},
+  {"text": "your customer service is terrible", "expected_intent": "service_complaint"},
+  {"text": "what is the current savings interest rate", "expected_intent": "interest_rate_query"},
+  {"text": "connect me to a human agent", "expected_intent": "escalation_request"}
+]
