@@ -1,6 +1,6 @@
-# NexBank Agentic Customer Service System
+# SmartAssist AI: NexBank Agentic Customer Service System
 
-This repository contains the production-grade agentic customer service system for NexBank. It is structured modularly to separate concerns across key conversational, business, and guardrail layers.
+This repository contains SmartAssist AI, a production-grade agentic customer service system built for NexBank. It is structured modularly to separate concerns across key conversational, business, and guardrail layers.
 
 ## Architecture Directory Layout
 
