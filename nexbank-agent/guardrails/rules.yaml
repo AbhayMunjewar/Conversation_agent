@@ -1,0 +1,89 @@
+pre_check_rules:
+  - rule_id: fund_transfer_request
+    description: "Detects unauthorized fund transfer requests."
+    trigger_patterns:
+      - "(?i)\\b(transfer|send|wire|pay|remit|disburse|payment)s?\\b.*\\b(money|funds?|cash|amount|rupees|usd|\\$|someone|person|friend|sister|brother|receiver)\\b"
+      - "(?i)\\b(money|funds?|cash|amount|rupees|usd|\\$|someone|person|friend|sister|brother|receiver)\\b.*\\b(transfer|send|wire|pay|remit|disburse|payment)s?\\b"
+    trigger_intents:
+      - "fund_transfer"
+      - "make_payment"
+    action: "require_stepped_up_auth"
+    severity: "high"
+    reason_code: "PRE_FUND_TRANSFER"
+
+  - rule_id: limit_change_request
+    description: "Detects credit or debit card limit change requests."
+    trigger_patterns:
+      - "(?i)\\b(increase|decrease|change|raise|lower|adjust|update|set|double|halve|modify|up|down)s?\\b.*\\b(limit|cap|threshold)s?\\b"
+      - "(?i)\\b(limit|cap|threshold)s?\\b.*\\b(increase|decrease|change|raise|lower|adjust|update|set|double|halve|modify|up|down)s?\\b"
+    trigger_intents:
+      - "limit_change"
+      - "update_limit"
+    action: "require_stepped_up_auth"
+    severity: "medium"
+    reason_code: "PRE_LIMIT_CHANGE"
+
+  - rule_id: kyc_override_request
+    description: "Detects attempts to bypass or skip standard KYC verification processes."
+    trigger_patterns:
+      - "(?i)\\b(skip|bypass|fast-track|override|ignore|avoid|without|no|stop)\\b.*\\b(kyc|video kyc|verification|aadhaar|pan|identity|docs?|documents?)\\b"
+    action: "require_stepped_up_auth"
+    severity: "high"
+    reason_code: "PRE_KYC_OVERRIDE"
+
+  - rule_id: account_closure_action
+    description: "Detects requests to close or deactivate bank accounts."
+    trigger_patterns:
+      - "(?i)\\b(close|deactivate|shutdown|terminate|band|cancel|closed|deactivating|closing|closure)s?\\b.*\\b(account|membership|savings|salary|current|profile)s?\\b"
+      - "(?i)\\b(account|membership|savings|salary|current|profile)s?\\b.*\\b(close|deactivate|shutdown|terminate|band|cancel|closed|deactivating|closing|closure)s?\\b"
+    trigger_intents:
+      - "account_closure"
+    action: "route_to_human"
+    severity: "medium"
+    reason_code: "PRE_ACCOUNT_CLOSURE"
+
+  - rule_id: card_block_action
+    description: "Detects requests to block, freeze, or report a lost card."
+    trigger_patterns:
+      - "(?i)\\b(block|freeze|lost|stolen|stole|missing|deactivate|stop|blocking|frozen)s?\\b.*\\b(card|debit|credit|mastercard|visa)s?\\b"
+      - "(?i)\\b(card|debit|credit|mastercard|visa)s?\\b.*\\b(block|freeze|lost|stolen|stole|missing|deactivate|stop|blocking|frozen)s?\\b"
+    trigger_intents:
+      - "card_block"
+    action: "allow_with_logging"
+    severity: "low"
+    reason_code: "PRE_CARD_BLOCK"
+
+post_check_rules:
+  - rule_id: investment_advice_pattern
+    description: "Prevents the bot from providing specific stock or fund investment recommendations."
+    trigger_patterns:
+      - "(?i)\\b(you should invest in|buy the stock|recommend buying|purchase shares of|invest in mutual funds|put money in)\\b"
+      - "(?i)\\b(highly recommend buying|buy shares|recommend investing)\\b"
+    action: "block_and_regenerate"
+    severity: "high"
+    reason_code: "POST_INVESTMENT_ADVICE"
+
+  - rule_id: guaranteed_return_pattern
+    description: "Prevents promises of guaranteed or risk-free financial returns."
+    trigger_patterns:
+      - "(?i)\\b(guaranteed|risk-free returns|assured profit|guaranteed yield|no risk profit|risk free returns|guarantee returns|make money guaranteed)\\b"
+    action: "block_and_regenerate"
+    severity: "high"
+    reason_code: "POST_GUARANTEED_RETURN"
+
+  - rule_id: tax_legal_advice_pattern
+    description: "Appends mandatory legal and tax disclaimer when advice-like language is used."
+    trigger_patterns:
+      - "(?i)\\b(you must file|tax-exempt|legally required|file tax returns|according to tax laws|under section|tax savings plan|tax advice)\\b"
+    action: "append_disclaimer"
+    severity: "medium"
+    reason_code: "POST_TAX_LEGAL_ADVICE"
+
+  - rule_id: pii_leak_pattern
+    description: "Scans for potential leaks of sensitive PII (account numbers, cards) that do not belong to the user."
+    trigger_patterns:
+      - "\\b\\d{9,18}\\b"
+      - "\\b\\d{4}[-\\s]?\\d{4}[-\\|\\s]?\\d{4}[-\\s]?\\d{4}\\b"
+    action: "block_hard"
+    severity: "critical"
+    reason_code: "POST_PII_LEAK"
