@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartAssist AI - NexBank Demo</title>
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --panel-bg: #141b2d;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border: #1f2937;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-orange: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #60a5fa, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            font-weight: 300;
+            color: var(--text-muted);
+            -webkit-text-fill-color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 70px);
+            overflow: hidden;
+        }
+
+        .chat-section {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            background-color: #0d1321;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .message.customer {
+            background-color: var(--primary);
+            color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.bot {
+            background-color: var(--panel-bg);
+            color: var(--text-main);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            border: 1px solid var(--border);
+        }
+
+        .message.escalated {
+            background-color: #3b1717;
+            border: 1px solid #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .chat-input-area {
+            padding: 1.5rem 2rem;
+            background-color: var(--panel-bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 1rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.85rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.25s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 0.85rem 1.75rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.25s;
+            font-family: inherit;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Debug Panel Styling */
+        .debug-section {
+            flex: 1.3;
+            background-color: var(--panel-bg);
+            padding: 2rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .debug-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .session-id {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background-color: var(--bg-color);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .debug-card {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .debug-card-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .debug-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .debug-label {
+            color: var(--text-muted);
+        }
+
+        .debug-val {
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .status-badge {
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-badge.green {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+        }
+
+        .status-badge.orange {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: var(--accent-orange);
+        }
+
+        .status-badge.red {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+        }
+
+        .tag {
+            background-color: var(--border);
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .latency {
+            font-size: 0.8rem;
+            color: var(--accent-green);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">SmartAssist AI <span>| NexBank Service Core</span></div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">Production Sandbox Console</div>
+    </header>
+
+    <div class="container">
+        <!-- Chat Area -->
+        <div class="chat-section">
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot">
+                    Hello! Welcome to NexBank Customer Services. I am SmartAssist AI. How can I help you today?
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Type your banking query here..." autocomplete="off">
+                <button id="send-btn">Send Query</button>
+            </div>
+        </div>
+
+        <!-- Debug Side Panel -->
+        <div class="debug-section">
+            <div class="debug-title">
+                System Diagnostics
+                <span class="session-id" id="debug-session-id">Loading...</span>
+            </div>
+
+            <!-- NLU Classifier Diagnostics -->
+            <div class="debug-card">
+                <div class="debug-card-title">NLU Classification</div>
+                <div class="debug-item">
+                    <span class="debug-label">Predicted Domain</span>
+                    <span class="debug-val" id="debug-domain">-</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">Active Intent</span>
+                    <span class="debug-val" id="debug-intent">-</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">Confidence Score</span>
+                    <span class="debug-val" id="debug-confidence">-</span>
+                </div>
+            </div>
+
+            <!-- Dialogue Manager Diagnostics -->
+            <div class="debug-card">
+                <div class="debug-card-title">Dialogue State</div>
+                <div class="debug-item">
+                    <span class="debug-label">State Machine Status</span>
+                    <span class="status-badge orange" id="debug-status">greeting</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">Filled Slots</span>
+                    <div class="tag-list" id="debug-slots-filled">-</div>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">Missing Slots</span>
+                    <div class="tag-list" id="debug-slots-missing">-</div>
+                </div>
+            </div>
+
+            <!-- Safety Guardrail Diagnostics -->
+            <div class="debug-card">
+                <div class="debug-card-title">Safety Guardrails</div>
+                <div class="debug-item">
+                    <span class="debug-label">Pre-check Status</span>
+                    <span class="status-badge green" id="debug-precheck">passed</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">Post-check Status</span>
+                    <span class="status-badge green" id="debug-postcheck">passed</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">Triggered Rules</span>
+                    <div class="tag-list" id="debug-guardrails-triggered">-</div>
+                </div>
+            </div>
+
+            <!-- Escalation & Performance Diagnostics -->
+            <div class="debug-card">
+                <div class="debug-card-title">Escalation & Perf</div>
+                <div class="debug-item">
+                    <span class="debug-label">Handoff Triggered</span>
+                    <span class="status-badge green" id="debug-escalated">no</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">NLU Latency</span>
+                    <span class="latency" id="debug-latency">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate a random unique session ID
+        const conversationId = "conv_" + Math.random().toString(36).substring(2, 10);
+        document.getElementById("debug-session-id").innerText = conversationId;
+
+        const chatMessages = document.getElementById("chat-messages");
+        const chatInput = document.getElementById("chat-input");
+        const sendBtn = document.getElementById("send-btn");
+
+        function appendMessage(text, role, isEscalated = false) {
+            const div = document.createElement("div");
+            div.className = `message ${role}`;
+            if (isEscalated) {
+                div.className += " escalated";
+            }
+            div.innerText = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            appendMessage(message, "customer");
+            chatInput.value = "";
+
+            try {
+                const startTime = performance.now();
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        conversation_id: conversationId,
+                        message: message
+                    })
+                });
+
+                const data = await response.json();
+                const latency = (performance.now() - startTime).toFixed(1) + "ms";
+
+                // Render Bot response
+                appendMessage(data.reply, "bot", data.escalated);
+
+                // Populate Debug side panel
+                updateDebugPanel(data, latency);
+
+            } catch (err) {
+                console.error("Error communicating with NexBank server:", err);
+                appendMessage("Error: Could not connect to the NexBank services core.", "bot");
+            }
+        }
+
+        function updateDebugPanel(data, latency) {
+            const trace = data.debug_trace || {};
+            const nlu = trace.nlu_result || {};
+            const guardrails = trace.guardrails || {};
+            const state = trace.state || {};
+
+            // NLU Panel
+            document.getElementById("debug-domain").innerText = nlu.domain || "-";
+            document.getElementById("debug-intent").innerText = nlu.intent || "-";
+            document.getElementById("debug-confidence").innerText = nlu.confidence ? (nlu.confidence * 100).toFixed(0) + "%" : "-";
+
+            // State Panel
+            const statusBadge = document.getElementById("debug-status");
+            statusBadge.innerText = data.status || "greeting";
+            if (data.status === "escalated") {
+                statusBadge.className = "status-badge red";
+            } else if (data.status === "ready_for_action") {
+                statusBadge.className = "status-badge green";
+            } else {
+                statusBadge.className = "status-badge orange";
+            }
+
+            // Filled / Missing Slots
+            const filledList = document.getElementById("debug-slots-filled");
+            filledList.innerHTML = "";
+            const filled = state.filled_slots || {};
+            if (Object.keys(filled).length === 0) {
+                filledList.innerText = "-";
+            } else {
+                for (const k in filled) {
+                    const span = document.createElement("span");
+                    span.className = "tag";
+                    span.innerText = `${k}: ${filled[k]}`;
+                    filledList.appendChild(span);
+                }
+            }
+
+            const missingList = document.getElementById("debug-slots-missing");
+            missingList.innerHTML = "";
+            const missing = state.missing_slots || [];
+            if (missing.length === 0) {
+                missingList.innerText = "-";
+            } else {
+                missing.forEach(slot => {
+                    const span = document.createElement("span");
+                    span.className = "tag";
+                    span.innerText = slot;
+                    missingList.appendChild(span);
+                });
+            }
+
+            // Guardrails Panel
+            const preBadge = document.getElementById("debug-precheck");
+            const postBadge = document.getElementById("debug-postcheck");
+            
+            const preResult = guardrails.pre_check || {};
+            const postResult = guardrails.post_check || {};
+
+            if (preResult.triggered_rules && preResult.triggered_rules.length > 0) {
+                preBadge.className = "status-badge red";
+                preBadge.innerText = "blocked";
+            } else {
+                preBadge.className = "status-badge green";
+                preBadge.innerText = "passed";
+            }
+
+            if (postResult.triggered_rules && postResult.triggered_rules.length > 0) {
+                postBadge.className = "status-badge orange";
+                postBadge.innerText = postResult.action || "passed";
+            } else {
+                postBadge.className = "status-badge green";
+                postBadge.innerText = "passed";
+            }
+
+            // Triggered list
+            const triggersList = document.getElementById("debug-guardrails-triggered");
+            triggersList.innerHTML = "";
+            const allTriggers = (preResult.triggered_rules || []).concat(postResult.triggered_rules || []);
+            if (allTriggers.length === 0) {
+                triggersList.innerText = "-";
+            } else {
+                allTriggers.forEach(rule => {
+                    const span = document.createElement("span");
+                    span.className = "tag";
+                    span.innerText = rule;
+                    triggersList.appendChild(span);
+                });
+            }
+
+            // Escalated & Performance Panel
+            const escBadge = document.getElementById("debug-escalated");
+            if (data.escalated) {
+                escBadge.className = "status-badge red";
+                escBadge.innerText = "yes";
+            } else {
+                escBadge.className = "status-badge green";
+                escBadge.innerText = "no";
+            }
+
+            document.getElementById("debug-latency").innerText = latency;
+        }
+
+        sendBtn.addEventListener("click", sendMessage);
+        chatInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+        });
+    </script>
+</body>
+</html>
