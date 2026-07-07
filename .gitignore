@@ -3,3 +3,10 @@ __pycache__/
 *.pyc
 nexbank-agent/nlu/embeddings_cache.pkl
 .pytest_cache/
+
+# Local databases and persistent vector stores
+nexbank-agent/kb/chroma_store/
+
+# Telemetry logs, interaction logs, and pipeline reports
+nexbank-agent/learning/logs/
+nexbank-agent/learning/backups/
